@@ -151,6 +151,14 @@ export function useShortcuts({ workspacePath, onSave, onSaveAs, onCreateFile, on
       setupSystemThemeListener((t) => setGlobalActiveTheme(t));
     });
 
+    // Editor mode toggles
+    on('lokus:toggle-focus-mode', () => {
+      window.dispatchEvent(new CustomEvent('lokus:toggle-focus-mode'));
+    });
+    on('lokus:toggle-typewriter-mode', () => {
+      window.dispatchEvent(new CustomEvent('lokus:toggle-typewriter-mode'));
+    });
+
     // Insert commands (editor)
     on('lokus:insert-wikilink', () => {
       const view = getFocusedEditor();
@@ -285,6 +293,18 @@ export function useShortcuts({ workspacePath, onSave, onSaveAs, onCreateFile, on
       if ((e.metaKey || e.ctrlKey) && e.key === 's' && !e.shiftKey && !e.altKey) {
         e.preventDefault();
         onSave?.();
+        return;
+      }
+      // Focus Mode toggle: Cmd/Ctrl+Shift+F
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'f' && !e.altKey) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('lokus:toggle-focus-mode'));
+        return;
+      }
+      // Typewriter Mode toggle: Cmd/Ctrl+Shift+T (Y as fallback since T conflicts)
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 't' && !e.altKey) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('lokus:toggle-typewriter-mode'));
         return;
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 'h' && !e.shiftKey && !e.altKey) {

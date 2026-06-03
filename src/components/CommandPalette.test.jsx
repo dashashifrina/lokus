@@ -99,6 +99,9 @@ vi.mock("lucide-react", () => ({
   Mail: () => <div data-testid="mail-icon" />,
   Target: () => <div data-testid="target-icon" />,
   Database: () => <div data-testid="database-icon" />,
+  Eye: () => <div data-testid="eye-icon" />,
+  Type: () => <div data-testid="type-icon" />,
+  Globe: () => <div data-testid="globe-icon" />,
 }));
 
 vi.mock("../core/markdown/compiler.js", () => ({

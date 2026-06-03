@@ -60,6 +60,8 @@ const NON_GLOBAL_ACTIONS = [
   'format-strikethrough',  // Handled by Tauri menu accelerator (CmdOrCtrl+Shift+X)
   'format-code',           // Handled by Tauri menu accelerator (CmdOrCtrl+E)
   'insert-math-inline',    // Handled by Tauri menu accelerator (CmdOrCtrl+M)
+  'toggle-focus-mode',     // Handled via DOM keydown in useShortcuts
+  'toggle-typewriter-mode',// Handled via DOM keydown in useShortcuts
 ];
 
 // Action catalog: add here as you grow

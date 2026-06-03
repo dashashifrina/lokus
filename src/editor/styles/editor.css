@@ -1472,3 +1472,40 @@ ul[data-type="taskList"] li.task-started {
   margin: 0;
 }
 
+
+/* ============================================
+   Focus Mode — paragraph dimming
+   Dims all top-level block children of ProseMirror
+   except the one containing the cursor (.has-focus).
+   ============================================ */
+
+.focus-mode .ProseMirror > *:not(.has-focus) {
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+}
+
+.focus-mode .ProseMirror > *.has-focus {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* Also apply to reading mode */
+.reading-mode-view.focus-mode > *:not(.has-focus) {
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+}
+
+.reading-mode-view.focus-mode > *.has-focus {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* ============================================
+   Typewriter Mode — cursor centering
+   JS scroll logic keeps cursor at ~40% from top.
+   Extra bottom padding ensures last lines can scroll.
+   ============================================ */
+
+.typewriter-mode .ProseMirror {
+  padding-bottom: 50vh;
+}

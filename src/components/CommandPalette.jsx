@@ -26,7 +26,9 @@ import {
   Target,
   Globe,
   Database,
-  Calendar
+  Calendar,
+  Eye,
+  Type
 } from 'lucide-react'
 import { getActiveShortcuts, formatAccelerator } from '../core/shortcuts/registry'
 import { useCommandHistory, createFileHistoryItem, createCommandHistoryItem } from '../hooks/useCommandHistory.js'
@@ -379,6 +381,20 @@ export default function CommandPalette({
                 {isDesktop() && <CommandShortcut>⌘G</CommandShortcut>}
               </CommandItem>
             )}
+            <CommandItem onSelect={() => runCommandWithHistory(() => {
+              window.dispatchEvent(new CustomEvent('lokus:toggle-focus-mode'));
+            }, 'Toggle Focus Mode')}>
+              <Eye className="mr-2 h-4 w-4" />
+              <span>Toggle Focus Mode</span>
+              {isDesktop() && (<CommandShortcut>{formatAccelerator(shortcuts['toggle-focus-mode'])}</CommandShortcut>)}
+            </CommandItem>
+            <CommandItem onSelect={() => runCommandWithHistory(() => {
+              window.dispatchEvent(new CustomEvent('lokus:toggle-typewriter-mode'));
+            }, 'Toggle Typewriter Mode')}>
+              <Type className="mr-2 h-4 w-4" />
+              <span>Toggle Typewriter Mode</span>
+              {isDesktop() && (<CommandShortcut>{formatAccelerator(shortcuts['toggle-typewriter-mode'])}</CommandShortcut>)}
+            </CommandItem>
           </CommandGroup>
 
           <CommandSeparator />

@@ -606,6 +606,21 @@ export default function Preferences({ workspacePath: workspacePathProp }) {
     }));
   };
 
+  const toggleAppearancePref = async (key) => {
+    try {
+      const { readConfig, updateConfig } = await import('../core/config/store.js');
+      const cfg = await readConfig() || {};
+      const appearance = cfg.editor?.appearance || {};
+      const newValue = !appearance[key];
+      const newAppearance = { ...appearance, [key]: newValue };
+      await updateConfig({ editor: { ...(cfg.editor || {}), appearance: newAppearance } });
+      setEditorSettings(prev => prev ? { ...prev, appearance: { ...prev.appearance, [key]: newValue } } : prev);
+      window.dispatchEvent(new CustomEvent('lokus:editor-settings-changed'));
+    } catch (e) {
+      console.error('Failed to toggle appearance setting', e);
+    }
+  };
+
   const saveEditorSettings = async () => {
     try {
       setSaveStatus('saving');
@@ -1718,6 +1733,65 @@ export default function Preferences({ workspacePath: workspacePathProp }) {
                         </div>
                       </div>
                     )}
+                  </section>
+
+                  {/* Writing Modes */}
+                  <section className="border border-app-border rounded-lg overflow-hidden bg-app-panel/30 hover:border-app-accent/30 transition-all">
+                    <div className="px-4 py-3 bg-gradient-to-r from-app-panel/50 to-transparent flex items-center gap-2">
+                      <svg className="w-4 h-4 text-app-accent" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                      </svg>
+                      <h2 className="text-sm font-semibold">Writing Modes</h2>
+                    </div>
+                    <div className="p-4 bg-app-bg/50 space-y-4">
+                      {/* Focus Mode */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-medium">Focus Mode</div>
+                          <div className="text-xs text-app-muted">Dim non-active paragraphs to reduce distraction</div>
+                          <div className="text-xs text-app-muted mt-0.5">Shortcut: Cmd+Shift+F</div>
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={!!editorSettings?.appearance?.focusMode}
+                          onClick={() => toggleAppearancePref('focusMode')}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-app-accent focus:ring-offset-1 ${
+                            editorSettings?.appearance?.focusMode ? 'bg-app-accent' : 'bg-app-border'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                              editorSettings?.appearance?.focusMode ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {/* Typewriter Mode */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-medium">Typewriter Mode</div>
+                          <div className="text-xs text-app-muted">Keep the current line vertically centered while typing</div>
+                          <div className="text-xs text-app-muted mt-0.5">Shortcut: Cmd+Shift+T</div>
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={!!editorSettings?.appearance?.typewriterMode}
+                          onClick={() => toggleAppearancePref('typewriterMode')}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-app-accent focus:ring-offset-1 ${
+                            editorSettings?.appearance?.typewriterMode ? 'bg-app-accent' : 'bg-app-border'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                              editorSettings?.appearance?.typewriterMode ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
                   </section>
 
                   {/* Save Button */}
