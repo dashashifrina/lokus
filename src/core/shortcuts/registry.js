@@ -64,65 +64,82 @@ const NON_GLOBAL_ACTIONS = [
 
 // Action catalog: add here as you grow
 export const ACTIONS = [
-  { id: "save-file",        name: "Save File",           event: "lokus:save-file",        default: "CommandOrControl+S" },
-  { id: "new-file",         name: "New File",            event: "lokus:new-file",         default: "CommandOrControl+N" },
-  { id: "new-folder",       name: "New Folder",          event: "lokus:new-folder",       default: "CommandOrControl+Shift+N" },
-  { id: "daily-note",       name: "Open Daily Note",     event: "lokus:daily-note",       default: "CommandOrControl+Shift+D" },
-  { id: "toggle-sidebar",   name: "Toggle Left Sidebar (Files)",  event: "lokus:toggle-sidebar",   default: "CommandOrControl+B" },
-  { id: "toggle-right-sidebar", name: "Toggle Right Sidebar (Plugins)", event: "lokus:toggle-right-sidebar", default: "CommandOrControl+Shift+B" },
-  { id: "open-preferences", name: "Open Preferences",     event: "preferences:open",       default: "CommandOrControl+," },
-  { id: "in-file-search",   name: "Find in Note",        event: "lokus:in-file-search",   default: "CommandOrControl+F" },
-  { id: "global-search",    name: "Global Search",       event: "lokus:global-search",    default: "CommandOrControl+Shift+F" },
-  { id: "command-palette",  name: "Command Palette",     event: "lokus:command-palette",  default: "CommandOrControl+K" },
-  { id: "wikilink-modal",   name: "Insert WikiLink",     event: "lokus:wikilink-modal",   default: "CommandOrControl+L" },
-  { id: "next-tab",         name: "Next Tab",            event: "lokus:next-tab",         default: "Control+Tab" },
-  { id: "prev-tab",         name: "Previous Tab",        event: "lokus:prev-tab",         default: "Control+Shift+Tab" },
-  { id: "close-tab",        name: "Close Current Tab",   event: "lokus:close-tab",        default: "CommandOrControl+W" },
-  { id: "reopen-closed-tab", name: "Reopen Closed Tab",  event: "lokus:reopen-closed-tab", default: "CommandOrControl+Shift+T" },
-  { id: "graph-view",       name: "Open Graph View",     event: "lokus:graph-view",       default: "CommandOrControl+Shift+G" },
-  { id: "shortcut-help",    name: "Show Keyboard Shortcuts", event: "lokus:shortcut-help", default: "F1" },
-  { id: "refresh-files",    name: "Refresh File Tree",   event: "lokus:refresh-files",    default: "F5" },
-  { id: "new-canvas",       name: "New Canvas",          event: "lokus:new-canvas",       default: "CommandOrControl+Shift+C" },
-  { id: "open-kanban",      name: "Open Kanban Board",   event: "lokus:open-kanban",      default: "CommandOrControl+Shift+K" },
-  { id: "toggle-split-view", name: "Toggle Split View",   event: "lokus:toggle-split-view", default: "CommandOrControl+\\" },
-  { id: "toggle-split-direction", name: "Toggle Split Direction", event: "lokus:toggle-split-direction", default: "CommandOrControl+Shift+\\" },
-  { id: "reset-pane-size",  name: "Reset Pane Size",     event: "lokus:reset-pane-size",  default: "CommandOrControl+Alt+\\" },
-  { id: "toggle-sync-scrolling", name: "Toggle Sync Scrolling", event: "lokus:toggle-sync-scrolling", default: "CommandOrControl+Alt+S" },
-  
-  // Edit menu shortcuts
-  { id: "undo", name: "Undo", event: "lokus:edit-undo", default: "CommandOrControl+Z" },
-  { id: "redo", name: "Redo", event: "lokus:edit-redo", default: "CommandOrControl+Shift+Z" },
-  { id: "cut", name: "Cut", event: "lokus:edit-cut", default: "CommandOrControl+X" },
-  { id: "copy", name: "Copy", event: "lokus:edit-copy", default: "CommandOrControl+C" },
-  { id: "paste", name: "Paste", event: "lokus:edit-paste", default: "CommandOrControl+V" },
-  { id: "select-all", name: "Select All", event: "lokus:edit-select-all", default: "CommandOrControl+A" },
-  { id: "find-replace", name: "Find and Replace", event: "lokus:find-replace", default: "CommandOrControl+H" },
-  
-  // View menu shortcuts
-  { id: "zoom-in", name: "Zoom In", event: "lokus:zoom-in", default: "CommandOrControl+Plus" },
-  { id: "zoom-out", name: "Zoom Out", event: "lokus:zoom-out", default: "CommandOrControl+-" },
-  { id: "actual-size", name: "Actual Size", event: "lokus:actual-size", default: "CommandOrControl+0" },
-  { id: "toggle-fullscreen", name: "Toggle Fullscreen", event: "lokus:toggle-fullscreen", default: "F11" },
-  
-  // Format menu shortcuts
-  { id: "format-bold", name: "Bold", event: "lokus:format-bold", default: "CommandOrControl+B" },
-  { id: "format-italic", name: "Italic", event: "lokus:format-italic", default: "CommandOrControl+I" },
-  { id: "format-underline", name: "Underline", event: "lokus:format-underline", default: "CommandOrControl+U" },
-  { id: "format-strikethrough", name: "Strikethrough", event: "lokus:format-strikethrough", default: "CommandOrControl+Shift+X" },
-  { id: "format-code", name: "Inline Code", event: "lokus:format-code", default: "CommandOrControl+E" },
-  { id: "format-highlight", name: "Highlight", event: "lokus:format-highlight", default: "CommandOrControl+Shift+H" },
-  
-  // Insert menu shortcuts
-  { id: "insert-math-inline", name: "Insert Inline Math", event: "lokus:insert-math-inline", default: "CommandOrControl+M" },
-  { id: "insert-math-block", name: "Insert Math Block", event: "lokus:insert-math-block", default: "CommandOrControl+Shift+M" },
-  { id: "insert-table", name: "Insert Table", event: "lokus:insert-table", default: "CommandOrControl+Shift+T" },
-  { id: "insert-code-block", name: "Insert Code Block", event: "lokus:insert-code-block", default: "CommandOrControl+Shift+C" },
-  
-  // File menu shortcuts
-  { id: "print", name: "Print", event: "lokus:print", default: "CommandOrControl+P" },
+  // File Operations
+  { id: "save-file",        name: "Save File",           event: "lokus:save-file",        default: "CommandOrControl+S",          category: "File" },
+  { id: "new-file",         name: "New File",            event: "lokus:new-file",         default: "CommandOrControl+N",          category: "File" },
+  { id: "new-folder",       name: "New Folder",          event: "lokus:new-folder",       default: "CommandOrControl+Shift+N",    category: "File" },
+  { id: "daily-note",       name: "Open Daily Note",     event: "lokus:daily-note",       default: "CommandOrControl+Shift+D",    category: "File" },
+  { id: "close-tab",        name: "Close Current Tab",   event: "lokus:close-tab",        default: "CommandOrControl+W",          category: "File" },
+  { id: "reopen-closed-tab", name: "Reopen Closed Tab",  event: "lokus:reopen-closed-tab", default: "CommandOrControl+Shift+T",  category: "File" },
+  { id: "new-canvas",       name: "New Canvas",          event: "lokus:new-canvas",       default: "CommandOrControl+Shift+C",    category: "File" },
+  { id: "print",            name: "Print",               event: "lokus:print",            default: "CommandOrControl+P",          category: "File" },
+
+  // Navigation
+  { id: "command-palette",  name: "Command Palette",     event: "lokus:command-palette",  default: "CommandOrControl+K",          category: "Navigation" },
+  { id: "toggle-sidebar",   name: "Toggle Left Sidebar", event: "lokus:toggle-sidebar",   default: "CommandOrControl+B",          category: "Navigation" },
+  { id: "toggle-right-sidebar", name: "Toggle Right Sidebar", event: "lokus:toggle-right-sidebar", default: "CommandOrControl+Shift+B", category: "Navigation" },
+  { id: "open-preferences", name: "Open Preferences",    event: "preferences:open",       default: "CommandOrControl+,",          category: "Navigation" },
+  { id: "in-file-search",   name: "Find in Note",        event: "lokus:in-file-search",   default: "CommandOrControl+F",          category: "Navigation" },
+  { id: "global-search",    name: "Global Search",       event: "lokus:global-search",    default: "CommandOrControl+Shift+F",    category: "Navigation" },
+  { id: "graph-view",       name: "Open Graph View",     event: "lokus:graph-view",       default: "CommandOrControl+Shift+G",    category: "Navigation" },
+  { id: "open-kanban",      name: "Open Kanban Board",   event: "lokus:open-kanban",      default: "CommandOrControl+Shift+K",    category: "Navigation" },
+  { id: "refresh-files",    name: "Refresh File Tree",   event: "lokus:refresh-files",    default: "F5",                          category: "Navigation" },
+  { id: "shortcut-help",    name: "Show Keyboard Shortcuts", event: "lokus:shortcut-help", default: "F1",                        category: "Navigation" },
+
+  // Tabs
+  { id: "next-tab",         name: "Next Tab",            event: "lokus:next-tab",         default: "Control+Tab",                 category: "Tabs" },
+  { id: "prev-tab",         name: "Previous Tab",        event: "lokus:prev-tab",         default: "Control+Shift+Tab",           category: "Tabs" },
+
+  // Editor — Formatting
+  { id: "undo",             name: "Undo",                event: "lokus:edit-undo",        default: "CommandOrControl+Z",          category: "Editor" },
+  { id: "redo",             name: "Redo",                event: "lokus:edit-redo",        default: "CommandOrControl+Shift+Z",    category: "Editor" },
+  { id: "cut",              name: "Cut",                 event: "lokus:edit-cut",         default: "CommandOrControl+X",          category: "Editor" },
+  { id: "copy",             name: "Copy",                event: "lokus:edit-copy",        default: "CommandOrControl+C",          category: "Editor" },
+  { id: "paste",            name: "Paste",               event: "lokus:edit-paste",       default: "CommandOrControl+V",          category: "Editor" },
+  { id: "select-all",       name: "Select All",          event: "lokus:edit-select-all",  default: "CommandOrControl+A",          category: "Editor" },
+  { id: "find-replace",     name: "Find and Replace",    event: "lokus:find-replace",     default: "CommandOrControl+H",          category: "Editor" },
+  { id: "wikilink-modal",   name: "Insert WikiLink",     event: "lokus:wikilink-modal",   default: "CommandOrControl+L",          category: "Editor" },
+
+  // Formatting
+  { id: "format-bold",      name: "Bold",                event: "lokus:format-bold",      default: "CommandOrControl+B",          category: "Formatting" },
+  { id: "format-italic",    name: "Italic",              event: "lokus:format-italic",    default: "CommandOrControl+I",          category: "Formatting" },
+  { id: "format-underline", name: "Underline",           event: "lokus:format-underline", default: "CommandOrControl+U",          category: "Formatting" },
+  { id: "format-strikethrough", name: "Strikethrough",   event: "lokus:format-strikethrough", default: "CommandOrControl+Shift+X", category: "Formatting" },
+  { id: "format-code",      name: "Inline Code",         event: "lokus:format-code",      default: "CommandOrControl+E",          category: "Formatting" },
+  { id: "format-highlight", name: "Highlight",           event: "lokus:format-highlight", default: "CommandOrControl+Shift+H",    category: "Formatting" },
+
+  // Insert
+  { id: "insert-math-inline", name: "Insert Inline Math", event: "lokus:insert-math-inline", default: "CommandOrControl+M",      category: "Insert" },
+  { id: "insert-math-block",  name: "Insert Math Block",  event: "lokus:insert-math-block",  default: "CommandOrControl+Shift+M", category: "Insert" },
+  { id: "insert-table",       name: "Insert Table",        event: "lokus:insert-table",        default: "CommandOrControl+Shift+T", category: "Insert" },
+  { id: "insert-code-block",  name: "Insert Code Block",   event: "lokus:insert-code-block",   default: "CommandOrControl+Shift+C", category: "Insert" },
+
+  // View
+  { id: "zoom-in",          name: "Zoom In",             event: "lokus:zoom-in",          default: "CommandOrControl+Plus",       category: "View" },
+  { id: "zoom-out",         name: "Zoom Out",            event: "lokus:zoom-out",         default: "CommandOrControl+-",          category: "View" },
+  { id: "actual-size",      name: "Actual Size",         event: "lokus:actual-size",      default: "CommandOrControl+0",          category: "View" },
+  { id: "toggle-fullscreen", name: "Toggle Fullscreen",  event: "lokus:toggle-fullscreen", default: "F11",                       category: "View" },
+  { id: "toggle-split-view", name: "Toggle Split View",  event: "lokus:toggle-split-view", default: "CommandOrControl+\\",     category: "View" },
+  { id: "toggle-split-direction", name: "Toggle Split Direction", event: "lokus:toggle-split-direction", default: "CommandOrControl+Shift+\\", category: "View" },
+  { id: "reset-pane-size",  name: "Reset Pane Size",     event: "lokus:reset-pane-size",  default: "CommandOrControl+Alt+\\",  category: "View" },
+  { id: "toggle-sync-scrolling", name: "Toggle Sync Scrolling", event: "lokus:toggle-sync-scrolling", default: "CommandOrControl+Alt+S", category: "View" },
 ];
 
 export function listActions() { return ACTIONS.map(a => ({ id: a.id, name: a.name })); }
+
+/**
+ * Returns ACTIONS grouped by category, with each group having { category, actions[] }.
+ * Each action includes { id, name, category, default }.
+ */
+export function listActionsByCategory() {
+  const groups = {};
+  for (const a of ACTIONS) {
+    const cat = a.category || 'Other';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push({ id: a.id, name: a.name, category: cat, default: a.default });
+  }
+  return Object.entries(groups).map(([category, actions]) => ({ category, actions }));
+}
 
 export async function getActiveShortcuts() {
   const cfg = await readConfig();
