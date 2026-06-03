@@ -310,7 +310,26 @@ export function useShortcuts({ workspacePath, onSave, onSaveAs, onCreateFile, on
         useLayoutStore.getState().setBottomTab('terminal');
         return;
       }
-    };
+       // Show keyboard shortcut cheatsheet: ? key or Cmd+/ (Ctrl+/ on Windows/Linux)
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        // Only trigger when not focused on an input/textarea/contenteditable
+        const target = e.target;
+        const isEditing =
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable;
+        if (!isEditing) {
+          e.preventDefault();
+          useViewStore.getState().togglePanel('showShortcutHelp');
+          return;
+        }
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === '/' && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        useViewStore.getState().togglePanel('showShortcutHelp');
+        return;
+      }
+   };
     document.addEventListener('keydown', handleKeyDown, { capture: true });
 
     return () => {
