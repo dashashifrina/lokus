@@ -33,6 +33,7 @@ import { createCodeBlockIndentPlugin } from '../extensions/CodeBlockIndent.js';
 import { createMathSnippetsPlugins } from '../extensions/MathSnippets.js';
 import { createSymbolShortcutsPlugin } from '../extensions/SymbolShortcuts.js';
 import { createMermaidInputRulesPlugin, mermaidNodeView } from '../extensions/MermaidDiagram.jsx';
+import { createFocusModePlugin } from '../extensions/FocusMode.js';
 import { inlineMathNodeView } from '../extensions/InlineMath.jsx';
 import { createWikiLinkNodeView } from '../extensions/WikiLink.js';
 import { createCanvasLinkNodeView } from '../extensions/CanvasLink.js';
@@ -464,6 +465,8 @@ const Editor = forwardRef(({ content, onContentChange, onEditorReady, isLoading 
       ...createMathSnippetsPlugins(schema, { customSnippets: customSymbols }),
       createSymbolShortcutsPlugin({ customSymbols }),
       createMermaidInputRulesPlugin(schema),
+      // Focus Mode: tracks cursor position and adds `has-focus` class to active block
+      createFocusModePlugin(),
     ];
 
     // ── Node views ──────────────────────────────────────────────────────
@@ -591,6 +594,48 @@ const Editor = forwardRef(({ content, onContentChange, onEditorReady, isLoading 
     } catch { }
   }, [editorMode]);
 
+  // Reload editorSettings when toggled from Preferences or keyboard shortcuts
+  useEffect(() => {
+    const handleEditorSettingsChanged = async () => {
+      try {
+        const { readConfig } = await import('../../core/config/store.js');
+        const cfg = await readConfig() || {};
+        const defaultAppearance = { showMarkdown: false, focusMode: false, typewriterMode: false };
+        const appearance = { ...defaultAppearance, ...(cfg.editor?.appearance || {}) };
+        setEditorSettings(prev => prev ? { ...prev, appearance } : prev);
+      } catch { }
+    };
+
+    const toggleAppearanceSetting = async (key) => {
+      try {
+        const { readConfig, updateConfig } = await import('../../core/config/store.js');
+        const cfg = await readConfig() || {};
+        const currentAppearance = cfg.editor?.appearance || {};
+        const newValue = !currentAppearance[key];
+        const newAppearance = { ...currentAppearance, [key]: newValue };
+        await updateConfig({ editor: { ...(cfg.editor || {}), appearance: newAppearance } });
+        // Update editorConfigCache
+        const { default: editorConfigCache } = await import('../../core/editor/config-cache.js');
+        await editorConfigCache.reload();
+        // Notify other listeners
+        window.dispatchEvent(new CustomEvent('lokus:editor-settings-changed'));
+      } catch { }
+    };
+
+    const handleToggleFocusMode = () => toggleAppearanceSetting('focusMode');
+    const handleToggleTypewriterMode = () => toggleAppearanceSetting('typewriterMode');
+
+    window.addEventListener('lokus:editor-settings-changed', handleEditorSettingsChanged);
+    window.addEventListener('lokus:toggle-focus-mode', handleToggleFocusMode);
+    window.addEventListener('lokus:toggle-typewriter-mode', handleToggleTypewriterMode);
+
+    return () => {
+      window.removeEventListener('lokus:editor-settings-changed', handleEditorSettingsChanged);
+      window.removeEventListener('lokus:toggle-focus-mode', handleToggleFocusMode);
+      window.removeEventListener('lokus:toggle-typewriter-mode', handleToggleTypewriterMode);
+    };
+  }, []);
+
   // Keyboard shortcut for cycling modes (Cmd/Ctrl+E)
   useEffect(() => {
     const handleModeShortcut = (e) => {
@@ -682,6 +727,50 @@ const PMEditor = forwardRef(({ plugins, nodeViews, content, onContentChange, edi
     });
     return unsubscribe;
   }, []);
+
+  // ── Typewriter mode: center cursor line on selection change ──────────
+  const editorWrapperRef = useRef(null);
+
+  useEffect(() => {
+    if (!editorSettings?.appearance?.typewriterMode) return;
+
+    const handleSelectionChange = () => {
+      const wrapper = editorWrapperRef.current;
+      if (!wrapper) return;
+
+      // Find the cursor DOM element (ProseMirror selection marker)
+      const cursor = wrapper.querySelector('.ProseMirror-cursor, [data-type="cursor"]');
+      // Fallback: use the focused element's caret position
+      const selection = window.getSelection();
+      let targetRect = null;
+
+      if (cursor) {
+        targetRect = cursor.getBoundingClientRect();
+      } else if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        targetRect = range.getBoundingClientRect();
+      }
+
+      if (!targetRect || targetRect.height === 0) {
+        // Try using the focused node's bounding rect
+        const focusedNode = wrapper.querySelector('.ProseMirror > .has-focus');
+        if (focusedNode) {
+          targetRect = focusedNode.getBoundingClientRect();
+        }
+      }
+
+      if (!targetRect) return;
+
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const targetTop = targetRect.top - wrapperRect.top + wrapper.scrollTop;
+      const desiredScrollTop = targetTop - wrapper.clientHeight * 0.4;
+
+      wrapper.scrollTo({ top: desiredScrollTop, behavior: 'smooth' });
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, [editorSettings?.appearance?.typewriterMode]);
 
   const tagIndexTimeoutRef = useRef(null);
 
@@ -1312,6 +1401,13 @@ const PMEditor = forwardRef(({ plugins, nodeViews, content, onContentChange, edi
   }
 
   // Edit and Live Preview modes - show ProseMirror editor
+  // Compute focus/typewriter class names from editor settings
+  const appearance = editorSettings?.appearance || {};
+  const editorWrapperClasses = [
+    appearance.focusMode ? 'focus-mode' : '',
+    appearance.typewriterMode ? 'typewriter-mode' : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <>
       {viewRef.current && showDebug && (
@@ -1321,20 +1417,26 @@ const PMEditor = forwardRef(({ plugins, nodeViews, content, onContentChange, edi
       )}
       {/* TODO: port to PM — TableBubbleMenu needs to be converted to a floating menu plugin */}
       {/* {viewRef.current && <TableBubbleMenu editor={viewRef.current} />} */}
-      <EditorContextMenu
-        onAction={handleEditorAction}
-        hasSelection={viewRef.current?.state?.selection && !viewRef.current.state.selection.empty}
-        canUndo={true}  /* TODO: port to PM — check undo history state */
-        canRedo={true}  /* TODO: port to PM — check redo history state */
+      <div
+        ref={editorWrapperRef}
+        className={`lokus-editor-wrapper h-full overflow-auto ${editorWrapperClasses}`}
+        style={{ position: 'relative' }}
       >
-        <div
-          ref={mountRef}
-          className={[
-            editorMode === 'live' ? 'live-preview-mode' : '',
-            plainTextNote ? 'lokus-plain-text-editor' : '',
-          ].filter(Boolean).join(' ')}
-        />
-      </EditorContextMenu>
+        <EditorContextMenu
+          onAction={handleEditorAction}
+          hasSelection={viewRef.current?.state?.selection && !viewRef.current.state.selection.empty}
+          canUndo={true}  /* TODO: port to PM — check undo history state */
+          canRedo={true}  /* TODO: port to PM — check redo history state */
+        >
+          <div
+            ref={mountRef}
+            className={[
+              editorMode === 'live' ? 'live-preview-mode' : '',
+              plainTextNote ? 'lokus-plain-text-editor' : '',
+            ].filter(Boolean).join(' ')}
+          />
+        </EditorContextMenu>
+      </div>{/* end lokus-editor-wrapper */}
 
       {/* WikiLink Modal */}
       <WikiLinkModal

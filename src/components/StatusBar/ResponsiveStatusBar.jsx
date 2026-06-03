@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useStatusBar } from '../../hooks/useStatusBar';
 import { useResponsiveStatusBar, STATUS_BAR_PRIORITY } from '../../hooks/useResponsiveStatusBar';
 import { useEditorGroupStore } from '../../stores/editorGroups';
@@ -28,6 +28,28 @@ export default function ResponsiveStatusBar({
   // Read state directly from EditorGroupStore
   const layout = useEditorGroupStore((s) => s.layout);
   const focusedGroupId = useEditorGroupStore((s) => s.focusedGroupId);
+
+  // Track active editor modes (focus / typewriter)
+  const [editorModes, setEditorModes] = useState({ focusMode: false, typewriterMode: false });
+  useEffect(() => {
+    const readModes = async () => {
+      try {
+        const { readConfig } = await import('../../core/config/store.js');
+        const cfg = await readConfig() || {};
+        const appearance = cfg.editor?.appearance || {};
+        setEditorModes({
+          focusMode: !!appearance.focusMode,
+          typewriterMode: !!appearance.typewriterMode,
+        });
+      } catch { }
+    };
+    readModes();
+
+    // Update whenever settings change
+    const handler = () => readModes();
+    window.addEventListener('lokus:editor-settings-changed', handler);
+    return () => window.removeEventListener('lokus:editor-settings-changed', handler);
+  }, []);
 
   const { activeFile, openTabs, unsavedChanges } = useMemo(() => {
     const store = useEditorGroupStore.getState();
@@ -121,6 +143,49 @@ export default function ResponsiveStatusBar({
       });
     }
 
+    // Editor mode indicators
+    if (editorModes.focusMode) {
+      items.push({
+        id: 'focus-mode-indicator',
+        priority: STATUS_BAR_PRIORITY.activeFile + 1,
+        estimatedWidth: 70,
+        render: () => (
+          <>
+            <div className="obsidian-status-bar-separator" />
+            <div
+              className="obsidian-status-bar-item active clickable"
+              title="Focus Mode active (Cmd+Shift+F to toggle)"
+              onClick={() => window.dispatchEvent(new CustomEvent('lokus:toggle-focus-mode'))}
+              style={{ color: 'rgb(var(--accent))' }}
+            >
+              <span>Focus</span>
+            </div>
+          </>
+        )
+      });
+    }
+
+    if (editorModes.typewriterMode) {
+      items.push({
+        id: 'typewriter-mode-indicator',
+        priority: STATUS_BAR_PRIORITY.activeFile + 1,
+        estimatedWidth: 80,
+        render: () => (
+          <>
+            <div className="obsidian-status-bar-separator" />
+            <div
+              className="obsidian-status-bar-item active clickable"
+              title="Typewriter Mode active (Cmd+Shift+T to toggle)"
+              onClick={() => window.dispatchEvent(new CustomEvent('lokus:toggle-typewriter-mode'))}
+              style={{ color: 'rgb(var(--accent))' }}
+            >
+              <span>Typewriter</span>
+            </div>
+          </>
+        )
+      });
+    }
+
     // Open tabs count
     items.push({
       id: 'tabs-count',
@@ -155,7 +220,7 @@ export default function ResponsiveStatusBar({
     });
 
     return items;
-  }, [activeFile, openTabs, leftItems]);
+  }, [activeFile, openTabs, leftItems, editorModes]);
 
   const rightStatusItems = useMemo(() => {
     const items = [];
